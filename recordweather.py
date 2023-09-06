@@ -4,8 +4,6 @@ import os
 
 import bme280
 import boto3
-
-# import dotenv
 import smbus2
 from dotenv import main as dotenv
 
@@ -30,12 +28,11 @@ if not os.path.exists(f'{currentdir}/data'):
 
 with open(target, "a+") as f:
     bme280_data = bme280.sample(bus, address)
-    timenow = bme280_data.timestamp.strftime('%Y/%m/%d-%H:%M:%S')
+    timenow = bme280_data.timestamp.astimezone().strftime('%Y/%m/%d-%H:%M:%S')
     ambient_temperature = bme280_data.temperature
     humidity = bme280_data.humidity
     pressure = bme280_data.pressure
     f.write(f"{timenow},{ambient_temperature},{humidity},{pressure}\n")
-
 
 with open(file=target, mode='rb') as f:
     bucket_name = 'tsutsui-test'
