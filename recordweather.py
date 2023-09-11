@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import datetime
 import os
 
 import bme280
@@ -9,20 +10,23 @@ from dotenv import main as dotenv
 
 dotenv.load_dotenv()
 
+s3_access_key = os.environ.get('S3ACCESSKEY')
+s3_secret_key = os.environ.get('S3SECRETKEY')
+location = os.environ.get('LOCATION')
+
 port = 1
 address = 0x76
 bus = smbus2.SMBus(port)
-filename = 'weatherdata'
-currentdir = os.path.dirname(__file__)
-target = f'{currentdir}/data/{filename}.csv'
 
-s3_access_key = os.environ.get('S3ACCESSKEY')
-s3_secret_key = os.environ.get('S3SECRETKEY')
+filename = f'{location}-{datetime.datetime.now().strftime("%Y%m%d")}.csv'
+targetdir = f'{os.path.dirname(os.path.abspath(__file__))}/data'
+target = f'{targetdir}/{filename}'
 
 bme280.load_calibration_params(bus, address)
 
-if not os.path.exists(f'{currentdir}/data'):
-    os.mkdir(f'{currentdir}/data')
+if not os.path.exists(target):
+    if not os.path.exists(targetdir):
+        os.mkdir(targetdir)
     with open(target, "a") as f:
         f.write("timestamp,temp,humidity,airpressure\n")
 
@@ -40,4 +44,4 @@ with open(file=target, mode='rb') as f:
         "s3", aws_access_key_id=s3_access_key, aws_secret_access_key=s3_secret_key
     )
 
-    s3.put_object(Bucket=bucket_name, Body=f, Key=os.environ.get('FILENAME'))
+    s3.put_object(Bucket=bucket_name, Body=f, Key=filename)
