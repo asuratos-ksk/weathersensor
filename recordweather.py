@@ -13,9 +13,9 @@ dotenv.load_dotenv()
 s3_access_key = os.environ.get('S3ACCESSKEY')
 s3_secret_key = os.environ.get('S3SECRETKEY')
 location = os.environ.get('LOCATION')
+address = int(os.environ.get('ADDRESS'), 0)
 
 port = 1
-address = 0x76
 bus = smbus2.SMBus(port)
 
 filename = f'{location}-{datetime.datetime.now().strftime("%Y%m%d")}.csv'
